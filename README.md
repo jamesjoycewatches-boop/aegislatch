@@ -14,6 +14,14 @@
 **Created / developed by: Umer Hassan**  
 **Repository:** https://github.com/jamesjoycewatches-boop/aegislatch
 
+## Animated workflow preview
+
+![AegisLatch — animated AI agent permission checks, human review and audit logging](assets/aegislatch-live-workflow.svg)
+
+*Conceptual animation of an AI tool-call lifecycle: proposed action → trusted host → default-deny policy → allow, human review or deny → audit evidence. This is an illustrated workflow, not screenshots of an existing graphical application.*
+
+The project helps developers put policy evaluation in front of sensitive tool handlers. **AegisLatch is a Python authorization library**; embedding and sandbox enforcement must be supplied by the application. See the [quick start](#quick-start), [security model](#security-model-and-limits), [threat model](docs/THREAT_MODEL.md), and [MIT license](LICENSE).
+
 ## Why AegisLatch?
 
 AI agents can be given access to files, APIs, databases, messaging systems and code-execution tools. A prompt-injected or simply mistaken agent can propose actions that exceed the user's intent. AegisLatch lets application developers enforce an explicit policy *outside the model* before a registered tool handler runs.
