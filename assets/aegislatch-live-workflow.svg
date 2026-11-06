@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">AegisLatch — Animated AI agent security workflow</title>
+<desc id="desc">Concept animation showing an agent's proposed tool call, deterministic default-deny policy evaluation, human approval, allow or block, and audit trail. Developed by Umer Hassan.</desc>
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#070d22"/><stop offset=".55" stop-color="#11102d"/><stop offset="1" stop-color="#070e22"/></linearGradient>
+<linearGradient id="accent" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#42d9ff"/><stop offset=".45" stop-color="#8768ff"/><stop offset="1" stop-color="#ec4dac"/></linearGradient>
+<linearGradient id="purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1b234d"/><stop offset="1" stop-color="#27153b"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#4333b5" stop-opacity=".48"/><stop offset="1" stop-color="#4333b5" stop-opacity="0"/></radialGradient>
+<filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="13"/></filter>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#7b88e8" stroke-width=".6" opacity=".12"/></pattern>
+<style><![CDATA[
+text{font-family:Inter,Segoe UI,Arial,sans-serif}
+.flow{stroke-dasharray:12 17;animation:stream 2.8s linear infinite}
+@keyframes stream{to{stroke-dashoffset:-145}}
+.pulse{animation:pulse 2.2s ease-in-out infinite;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.58}50%{opacity:1}}
+.scan{animation:scan 4.4s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(-30px);opacity:0}30%,70%{opacity:.9}50%{transform:translateY(95px)}}
+.spin{transform-origin:607px 353px;animation:rot 6s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.blink{animation:blink 4.5s ease-in-out infinite}
+@keyframes blink{0%,19%,44%,100%{opacity:.24}20%,43%{opacity:1}}
+.float{animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+]]></style>
+</defs>
+<rect width="1200" height="675" rx="22" fill="url(#bg)"/>
+<rect width="1200" height="675" rx="22" fill="url(#grid)"/>
+<ellipse cx="605" cy="343" rx="440" ry="310" fill="url(#glow)"/>
+<path d="M0 110H1200 M0 576H1200" stroke="#6f78dc" stroke-opacity=".25"/>
+<g transform="translate(50 29)">
+<path d="M40 0 78 14V48Q72 73 40 88 8 73 2 48V14Z" fill="#0c1735" stroke="#ff5e94" stroke-width="4"/>
+<rect x="27" y="39" width="26" height="25" rx="5" fill="none" stroke="#eef1ff" stroke-width="4"/>
+<path d="M32 39v-7a8 8 0 0 1 16 0v7" fill="none" stroke="#eef1ff" stroke-width="4"/>
+<circle cx="40" cy="50" r="2.5" fill="#eef1ff"/>
+</g>
+<text x="146" y="77" fill="#f6f6ff" font-size="47" font-weight="800">Aegis<tspan fill="#fb4d85">Latch</tspan></text>
+<text x="148" y="105" fill="#bac6e9" font-size="16">SECURITY GATEWAY FOR AI AGENTS</text>
+<g transform="translate(980 38)">
+<rect width="177" height="42" rx="21" fill="#0b2731" stroke="#2bcaa2" stroke-opacity=".65"/>
+<circle cx="23" cy="21" r="6" fill="#28e0aa"><animate attributeName="opacity" values=".35;1;.35" dur="2.8s" repeatCount="indefinite"/></circle>
+<text x="42" y="27" fill="#dffef6" font-size="16" font-weight="700">Policy active</text>
+</g>
+<text x="52" y="165" fill="#dce4ff" font-size="18" font-weight="700">LIVE WORKFLOW SIMULATION</text>
+<text x="52" y="187" fill="#8e9dc4" font-size="14">Visual illustration of local authorization decisions — not a running dashboard</text>
+<!-- agent card -->
+<g transform="translate(48 236)">
+<rect width="288" height="262" rx="23" fill="url(#purple)" stroke="#5475c7" stroke-width="2"/>
+<rect x="18" y="18" width="251" height="39" rx="10" fill="#2b245c"/>
+<text x="34" y="44" fill="#d9d6ff" font-size="16" font-weight="700">01  AI AGENT</text>
+<g class="float">
+<rect x="97" y="87" width="94" height="65" rx="24" fill="#101d48" stroke="#64cfff" stroke-width="3"/>
+<circle cx="126" cy="119" r="9" fill="#53d8ff"/><circle cx="164" cy="119" r="9" fill="#53d8ff"/>
+<path d="M138 90v-12" stroke="#9ee6ff" stroke-width="4" stroke-linecap="round"/>
+<circle cx="138" cy="76" r="6" fill="#9ee6ff"/>
+</g>
+<text x="144" y="187" fill="#ffffff" text-anchor="middle" font-size="20" font-weight="700">Proposed tool call</text>
+<rect x="26" y="202" width="236" height="42" rx="10" fill="#091630" stroke="#3e4e85"/>
+<text x="144" y="228" fill="#9dcfff" text-anchor="middle" font-size="16" font-family="monospace">read_file(path)</text>
+</g>
+<!-- gateway -->
+<g opacity=".85"><path d="M339 365H452" stroke="#203b71" stroke-width="7" stroke-linecap="round"/><path d="M340 365H449" stroke="#33cbff" stroke-width="3" class="flow" stroke-linecap="round"/></g>
+<g transform="translate(456 222)">
+<rect width="310" height="290" rx="23" fill="#101a3a" stroke="#9665ff" stroke-width="2.5"/>
+<rect x="15" y="16" width="280" height="37" rx="10" fill="#302155"/>
+<text x="31" y="41" fill="#eeebff" font-size="16" font-weight="700">02  POLICY EVALUATOR</text>
+<g class="spin"><circle cx="155" cy="132" r="76" fill="none" stroke="#6869ef" stroke-opacity=".36" stroke-width="3" stroke-dasharray="11 17"/></g>
+<path d="M155 65 205 82V123Q205 168 155 193 105 168 105 123V82Z" fill="#172960" stroke="#6dd8ff" stroke-width="5"/>
+<rect x="137" y="122" width="36" height="31" rx="6" fill="#6bd8ff"/>
+<path d="M143 122v-11a12 12 0 0 1 24 0v11" fill="none" stroke="#6bd8ff" stroke-width="5"/>
+<circle cx="155" cy="135" r="3" fill="#172960"/>
+<g class="scan"><rect x="102" y="86" width="106" height="4" rx="2" fill="#a4edff" opacity=".8"/></g>
+<text x="155" y="224" fill="#f6f7ff" font-size="22" font-weight="800" text-anchor="middle">Default-deny</text>
+<rect x="41" y="239" width="228" height="31" rx="15" fill="#201c4b" stroke="#7456c7"/>
+<text x="155" y="260" fill="#c4bbff" font-size="14" font-weight="600" text-anchor="middle">Evaluate • authorize • audit</text>
+</g>
+<g opacity=".85"><path d="M773 365H859" stroke="#30235e" stroke-width="7" stroke-linecap="round"/><path d="M773 365H859" stroke="#a270ff" stroke-width="3" class="flow" stroke-linecap="round"/></g>
+<!-- decisions -->
+<g transform="translate(862 230)">
+<rect width="291" height="270" rx="23" fill="#101a3a" stroke="#5475c7" stroke-width="2"/>
+<rect x="17" y="16" width="256" height="39" rx="10" fill="#242453"/>
+<text x="32" y="42" fill="#d8dcff" font-size="16" font-weight="700">03  DECISION &amp; AUDIT</text>
+<g class="blink"><rect x="19" y="71" width="251" height="50" rx="12" fill="#0d372e" stroke="#2edfa5"/><circle cx="46" cy="96" r="14" fill="#29d69c"/><path d="m39 96 5 5 9-10" stroke="#06291d" stroke-width="3" fill="none"/><text x="78" y="103" fill="#d9fff4" font-size="19" font-weight="700">ALLOW</text></g>
+<g><rect x="19" y="131" width="251" height="50" rx="12" fill="#362d16" stroke="#f3c15f"/><circle cx="46" cy="156" r="14" fill="#f3c15f"/><text x="46" y="162" text-anchor="middle" fill="#3a2509" font-size="19" font-weight="800">!</text><text x="78" y="162" fill="#fff3cc" font-size="19" font-weight="700">HUMAN REVIEW</text></g>
+<g><rect x="19" y="191" width="251" height="50" rx="12" fill="#381828" stroke="#f26496"/><circle cx="46" cy="216" r="14" fill="#f26496"/><path d="m41 211 10 10 m0-10-10 10" stroke="#401020" stroke-width="3"/><text x="78" y="222" fill="#ffe0ea" font-size="19" font-weight="700">DENY</text></g>
+</g>
+<!-- status bar -->
+<rect x="50" y="539" width="1098" height="53" rx="15" fill="#101c3c" stroke="#3c4c8c" stroke-width="1.5"/>
+<circle cx="77" cy="566" r="7" fill="#54deff" class="pulse"/>
+<text x="100" y="574" fill="#d5e4ff" font-size="17">Model request</text>
+<path d="M259 566h82" stroke="url(#accent)" stroke-width="3" class="flow"/>
+<text x="364" y="574" fill="#d5e4ff" font-size="17">Policy check</text>
+<path d="M509 566h82" stroke="url(#accent)" stroke-width="3" class="flow"/>
+<text x="616" y="574" fill="#d5e4ff" font-size="17">Human review</text>
+<path d="M767 566h82" stroke="url(#accent)" stroke-width="3" class="flow"/>
+<text x="875" y="574" fill="#d5e4ff" font-size="17">Decision logged</text>
+<rect x="49" y="623" width="391" height="31" rx="15" fill="#151533" stroke="#d452b4" stroke-opacity=".6"/>
+<text x="67" y="644" fill="#ffe6f6" font-size="16" font-weight="700">Developed by Umer Hassan</text>
+<text x="1145" y="644" fill="#8c9ac0" font-size="13" text-anchor="end">AegisLatch v0.1.0 • Open Source</text>
+</svg>
