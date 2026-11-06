@@ -69,7 +69,5 @@ class AuditLedger:
                            hashlib.sha256).hexdigest()
             record = {"event": event, "previous": previous, "mac": mac}
             with self._path.open("a", encoding="utf-8") as file:
-                file.write(canonical_json(record).decode("ascii") + "
-")
+                file.write(canonical_json(record).decode("ascii") + "\n")
                 file.flush()
-
