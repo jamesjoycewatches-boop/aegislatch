@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "default": "deny",
+  "rules": [
+    {
+      "id": "read-workspace-note",
+      "principal": "demo-user",
+      "server": "local-demo",
+      "tool": "read_note",
+      "effect": "allow",
+      "resource": {"kind": "file", "arg": "path", "roots": ["./workspace"]}
+    },
+    {
+      "id": "external-post-needs-review",
+      "principal": "demo-user",
+      "server": "web-demo",
+      "tool": "send_payload",
+      "effect": "review",
+      "resource": {"kind": "url", "arg": "url", "hosts": ["api.example.com"]}
+    },
+    {
+      "id": "never-run-shell",
+      "principal": "demo-user",
+      "server": "local-demo",
+      "tool": "shell",
+      "effect": "deny",
+      "resource": {"kind": "none"}
+    }
+  ]
+}
