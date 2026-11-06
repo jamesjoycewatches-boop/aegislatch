@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegislatch"
+version = "0.1.0"
+description = "Local-first, default-deny authorization gateway for AI agent tool calls"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name = "AegisLatch contributors"}]
+license = "MIT"
+keywords = ["agents", "mcp", "security", "authorization", "policy", "privacy"]
+classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Topic :: Security"]
+
+[project.scripts]
+aegislatch = "aegislatch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
