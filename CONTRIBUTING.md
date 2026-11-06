@@ -1,0 +1,3 @@
+# Contributing
+
+Please start by opening an issue describing the change and its threat-model impact. Security-sensitive PRs require tests for both successful and denied paths. Do not include secrets, private data, proprietary sources or customer credentials. Keep runtime code dependency-light and deterministic. Contributions are accepted only after review; CI success is not a security certification.
