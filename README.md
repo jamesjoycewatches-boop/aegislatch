@@ -1,107 +1,252 @@
 # AegisLatch
 
-**A default-deny policy gate for AI-agent tool calls — local-first, privacy-conscious, transparent.**
+**Security-first authorization for AI agent tool calls.**
 
-> **Status:** v0.1 public developer preview. Not production-certified; no claim of complete prompt-injection or data-leak prevention.
+[![Unit Tests](https://github.com/jamesjoycewatches-boop/aegislatch/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesjoycewatches-boop/aegislatch/actions/workflows/ci.yml)
+![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+![Status: Developer Preview](https://img.shields.io/badge/status-developer%20preview-orange)
 
-AI agents can read files, send messages, call third-party APIs and trigger code. AegisLatch helps developers put a deterministic authorization boundary between a model's proposed action and a trusted tool handler. It is vendor-neutral; no model API key required.
+> **Public open-source developer preview · v0.1.0**
+>
+> AegisLatch is a Python library for placing a deterministic, **default-deny permission gate** between an AI agent's proposed tool call and a trusted application handler. It is **not** an autonomous AI model, a complete firewall, a running dashboard, an MCP proxy, or independently audited production security software.
 
-## Capabilities
+**Created / developed by: Umer Hassan**  
+**Repository:** https://github.com/jamesjoycewatches-boop/aegislatch
 
-- **Default deny.** Only exact authenticated principal / server / tool combinations listed in a local JSON policy may be considered.
-- **Resource-aware.** Absolute filesystem path containment checks and exact HTTPS destination-host allowlists. Unsafe URLs, secret-bearing arguments, and oversized JSON are denied.
-- **Human review.** Risky actions may be labeled `review`; a separate trusted human component can issue a short-lived one-use ticket bound to the exact proposed action.
-- **Tool-schema pinning.** Optional SHA-256 of a trusted, reviewed canonical JSON tool definition.
-- **Audit option.** Local HMAC-chained log of decision, rule and call hash without raw payloads; no telemetry.
-- **Zero runtime dependencies.** Standard-library Python 3.11+; no external network calls from the package.
+## Why AegisLatch?
 
-## Architecture
+AI agents can be given access to files, APIs, databases, messaging systems and code-execution tools. A prompt-injected or simply mistaken agent can propose actions that exceed the user's intent. AegisLatch lets application developers enforce an explicit policy *outside the model* before a registered tool handler runs.
 
-```text
-untrusted model output (tool + args)
-              │
-              ▼
- trusted host injects user identity + registered tool/schema
-              │
-              ▼
-      AegisLatch Policy
-    ┌─────────┼──────────┐
-   DENY      REVIEW     ALLOW
-    │     one-time human   │
-    │       approval       │
-    └─────────┼───────────┘
-              ▼
-  sandboxed trusted handler + independent OS/network policy
-```
+Its core principle is **never trust a model-generated tool request as authorization**. The trusted host must authenticate the user, register tools and policies, and make the gateway the sole execution path.
 
-AegisLatch does not run tools by itself and does not promise that an allowed handler is safe. The host must make the gateway the **only** execution route, with independent filesystem/network enforcement.
+### Design goals
+
+- **Least privilege by default:** unknown tools and principals are denied.
+- **Deterministic decisions:** the same policy and call produce the same authorization result.
+- **Separation of duties:** human approval is issued by a trusted service, not by the agent.
+- **Privacy-conscious operation:** local policy processing, no built-in telemetry, no model API key.
+- **Small, inspectable core:** Python 3.11+ standard library with zero third-party runtime dependencies.
+- **Honest security boundaries:** document what checks can and cannot enforce.
+
+## Security features
+
+| Capability | v0.1 behavior |
+| --- | --- |
+| Default-deny policy | Exact authenticated `principal`, trusted `server` and `tool` rules return **allow**, **deny** or **review**. |
+| Controlled file paths | Canonical-path containment under configured roots; prevents straightforward traversal and symlink escapes at evaluation time. |
+| HTTPS destinations | HTTPS-only, exact allowed hostname matching; forbids embedded URL credentials, IP literals, unusual ports and certain suspicious query parameters. |
+| Secret-pattern checks | Rejects common API-key/token patterns and certain sensitive argument field names. This is best-effort, **not full DLP**. |
+| Schema integrity | Optional SHA-256 pinning of a trusted canonical JSON tool definition provided by the host. |
+| Human approval | Short-lived, HMAC-signed, single-use ticket tied to the exact call and rule; SQLite helps reject replay. |
+| Audit evidence | Optional local HMAC chain records a decision, rule ID and action fingerprint **without raw arguments**. |
+| Operational isolation | No built-in network requests, telemetry or runtime cloud service. Execution is delegated to an application-supplied handler. |
+
+### How a call flows
+
+~~~text
+AI MODEL (untrusted proposed tool call)
+                  |
+                  v
+TRUSTED HOST (authenticated principal + tool registry + policy)
+                  |
+                  v
+      AegisLatch Policy.evaluate()
+                  |
+       +----------+-----------+
+       |          |           |
+      DENY       REVIEW      ALLOW
+       |          |           |
+       |       Trusted human  |
+       |       approval       |
+       |          |           |
+       +----------+-----------+
+                  |
+                  v
+       Gateway.execute()
+                  |
+                  v
+    REVIEWED, SANDBOXED HANDLER
+    + OS / network enforcement
+~~~
+
+**Important:** If an AI agent can call the handler directly, AegisLatch cannot stop that bypass. The host must restrict the available execution routes and handler privileges.
 
 ## Quick start
 
-```bash
+### 1. Requirements
+
+- Python **3.11 or newer**
+- Git
+- No model subscription, cloud API key or third-party runtime package required
+
+### 2. Install from this repository
+
+~~~bash
+git clone https://github.com/jamesjoycewatches-boop/aegislatch.git
+cd aegislatch
 python -m pip install -e .
+~~~
+
+The package is currently distributed as GitHub source. These commands **do not** assume a PyPI release.
+
+### 3. Run the included offline example
+
+~~~bash
 python examples/demo.py
-python -m unittest discover -s tests -v
+~~~
+
+The demonstration reads only a harmless sample note in the example workspace through a permitted handler. It does not contact any external server.
+
+### 4. Inspect a blocked call from the command line
+
+~~~bash
 python -m aegislatch check examples/policy.json examples/blocked-call.json
-```
+~~~
 
-The last command should return `deny` and exit code `2`.
+Expected result: a **deny** decision and process exit code **2** for the disallowed shell request.
 
-### Embed in a trusted application
+### 5. Run tests and repository checks
 
-```python
-from aegislatch import Policy, Gateway, ToolCall
+~~~bash
+python -m unittest discover -s tests -v
+python scripts/release_gate.py
+python -m compileall -q src
+~~~
+
+GitHub Actions also runs installation, hygiene checks, tests and compilation on **Python 3.11, 3.12 and 3.13**. A green CI run is a regression check, **not a security certification**.
+
+## Writing a policy
+
+Policies are local JSON documents. A valid policy has `version`, `default` and `rules`; the default must be `deny`. Each rule identifies a user/principal, server, tool, decision and resource restriction.
+
+Example based on the included demonstration:
+
+~~~json
+{
+  "version": 1,
+  "default": "deny",
+  "rules": [
+    {
+      "id": "read-workspace-note",
+      "principal": "demo-user",
+      "server": "local-demo",
+      "tool": "read_note",
+      "effect": "allow",
+      "resource": {
+        "kind": "file",
+        "arg": "path",
+        "roots": ["./workspace"]
+      }
+    },
+    {
+      "id": "external-post-needs-review",
+      "principal": "demo-user",
+      "server": "web-demo",
+      "tool": "send_payload",
+      "effect": "review",
+      "resource": {
+        "kind": "url",
+        "arg": "url",
+        "hosts": ["api.example.com"]
+      }
+    }
+  ]
+}
+~~~
+
+Relative file roots are resolved relative to the policy file's directory. An incoming file resource argument must be an **absolute path**. Hostnames must match the allowlist exactly; a wildcard or approximate substring match is not accepted.
+
+### Embedding the gateway
+
+~~~python
+from pathlib import Path
+from aegislatch import Gateway, Policy, ToolCall
 
 policy = Policy.from_file("examples/policy.json")
+sample = (Path("examples/workspace") / "hello.txt").resolve()
+
 call = ToolCall(
-    principal="demo-user",  # authenticated and injected by trusted host
-    server="local-demo", tool="read_note",
-    arguments={"path": "/absolute/path/to/aegislatch/examples/workspace/hello.txt"},
+    principal="demo-user",  # MUST come from the trusted authenticated host
+    server="local-demo",
+    tool="read_note",
+    arguments={"path": str(sample)},
 )
 
-# Register trusted_read_note inside a sandbox. Never expose raw handlers to LLMs.
+def trusted_read_note(path: str) -> str:
+    # Demo only. Production needs safe file-descriptor operations and sandboxing.
+    return Path(path).read_text(encoding="utf-8")
+
 result = Gateway(policy).execute(call, trusted_read_note)
-```
+print(result.strip())
+~~~
 
-For an exact reproducible example, run `examples/demo.py`; it resolves the test path automatically.
+**Do not allow the LLM to choose its own authenticated identity.** Do not expose unwrapped file, shell or network tools to the agent.
 
-### Review decision and signed approval
+## Human approval and audit logging
 
-```python
-from aegislatch import Policy, ToolCall, ApprovalAuthority, Gateway
+The `review` decision is intentionally **not automatic approval**. A separate trusted, human-operated component must show the exact proposed arguments and issue a time-limited ticket only after verification. The `ApprovalAuthority` signs that ticket and uses a local SQLite record to detect replay. Tickets are bound to the call's fingerprint and policy rule.
 
-policy = Policy.from_file("examples/policy.json")
-call = ToolCall("demo-user", "web-demo", "send_payload",
-                {"url": "https://api.example.com/submit", "payload": "public demo only"})
-decision = policy.evaluate(call)  # status == 'review'
+An optional `AuditLedger` chains decision events with HMAC. It records timestamps, decision status, rule ID, reason and an action hash; it does not intentionally store the raw tool arguments. The chain helps detect modifications **only when its signing key and file are protected**. Deletion, key compromise and multi-writer use require additional safeguards.
 
-# HUMAN-ONLY SERVICE -- not exposed to agent/model. Store signing key securely.
-# authority = ApprovalAuthority("/protected/private/approvals.db", secret_key_32_bytes)
-# ticket = authority.issue_after_human_review(call, decision, approver="verified-human")
-# result = Gateway(policy, approvals=authority).execute(call, trusted_handler, approval_ticket=ticket)
-```
+See [the working demo](examples/demo.py), [approval implementation](src/aegislatch/approvals.py), [gateway implementation](src/aegislatch/gateway.py) and [audit implementation](src/aegislatch/audit.py).
 
-The issuer method must be invoked only after real user-facing review of the **full proposed arguments**; the example intentionally does not create a remote HTTP client or auto-approval channel.
+## Security model and limits
 
-## Documentation
+AegisLatch is **one authorization layer**; it is not a substitute for a sandbox, a filesystem access-control mechanism, DNS/firewall rules, endpoint protection, or a human-reviewed security architecture.
 
-- [Local security audit and limitations](docs/SECURITY_AUDIT.md)
-- [Threat model](docs/THREAT_MODEL.md)
-- [Security boundary and non-guarantees](SECURITY.md)
-- [Public release checklist](docs/RELEASE_CHECKLIST.md)
-- [Contributing](CONTRIBUTING.md)
+- **Filesystem:** the policy performs path checks, but symlink/path changes between checking and opening a file (TOCTOU) remain possible. Enforce safety in the handler using OS permissions and safe file-descriptor primitives.
+- **Network:** hostname allowlists alone do not stop DNS rebinding, redirects, SSRF through an HTTP client or infrastructure-level bypasses. Apply IP/redirect checks and independent egress filtering.
+- **Secrets and privacy:** simple patterns cannot catch every secret, encoded payload, sensitive content or exfiltration path. Use data classification and dedicated DLP where needed.
+- **Approvals:** signing keys and approval APIs must be separated from agents. Do not let a model mint its own permission tickets.
+- **Tool execution:** an allowed tool can still behave dangerously if its handler is unsafe or overprivileged.
+- **Audit:** logging is HMAC-tamper-evident under limited assumptions, not tamper-proof or immutable.
+- **Deployment:** independent penetration testing, threat simulation and production integration review are **not yet complete**.
+
+Read [SECURITY.md](SECURITY.md), [the threat model](docs/THREAT_MODEL.md), [the initial security review](docs/SECURITY_AUDIT.md) and [the release checklist](docs/RELEASE_CHECKLIST.md) before integrating it with sensitive systems.
+
+## Example use cases
+
+- **Personal AI assistants:** prevent unapproved access to local files or external messaging tools.
+- **Developer agents:** restrict dangerous tool calls and prevent unexpected shell operations.
+- **Enterprise prototypes:** introduce explicit rules per authenticated user, tool and resource.
+- **Agent platforms:** require human review before a selected high-impact operation.
+- **Security research:** exercise adversarial cases against a small, inspectable authorization engine.
+
+These are integration scenarios, **not claims of existing plug-and-play integrations**.
+
+## What's included
+
+~~~text
+aegislatch/
+├── src/aegislatch/         # policy engine, gateway, approvals, audit, CLI
+├── tests/                  # unit and adversarial regression tests
+├── examples/               # offline demo, JSON policy, blocked-call sample
+├── docs/                   # security audit, threat model, release checklist
+├── .github/workflows/      # CI test matrix (3.11, 3.12, 3.13)
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── LICENSE
+└── pyproject.toml
+~~~
 
 ## Roadmap
 
-v0.2: adapter layer for MCP servers (authenticated tool registry, full schema pinning, approval UI); safe file-descriptor API; network egress enforcement integration; immutable audit checkpoints; property-based adversarial tests; SBOM and signed releases. The current package is a library, **not** an MCP server or MCP proxy.
+Planned research/development directions (not current capabilities):
 
-## Why this exists
+1. Authenticated MCP adapter or proxy integration with trusted tool registration.
+2. Safe file-descriptor APIs and platform sandbox integrations.
+3. Network egress verification and redirect/DNS defenses in host adapters.
+4. Dedicated approval UI and approval issuer separation.
+5. Stronger audit checkpoints and multi-process support.
+6. More adversarial/property-based tests, dependency/SBOM analysis and independently reviewed releases.
 
-Aligned with OWASP's AI-agent guidance on least privilege, trusted tool authorization and human-in-the-loop controls. It is a practical building block, not a substitute for existing security architecture.
+## Contributing
 
-- [OWASP MCP Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/MCP_Security_Cheat_Sheet.html)
-- [OWASP GenAI LLM Top 10 2026](https://github.com/GenAI-Security-Project/GenAI-LLM-Top10)
+Issues, documentation improvements, reproducible test cases and reviewed security contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md). **Do not include credentials, customer data, private code or exploit details in public issues.** See [SECURITY.md](SECURITY.md) for the vulnerability-reporting approach.
 
-## License
+## Maintainer and license
 
-MIT. No external service required. No analytics or telemetry. Maintainer attribution can be added in a later release at the repository owner's request.
+**Developed by Umer Hassan.** AegisLatch is an independent open-source developer project.
+
+Distributed under the [MIT License](LICENSE). This release is a **public developer preview**, supplied without security guarantees. It has not received an independent security certification.
